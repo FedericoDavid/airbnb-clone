@@ -10,7 +10,6 @@ import { toast } from "react-hot-toast";
 import Modal from "./Modal";
 import Heading from "../Heading";
 
-import useRegisterModal from "@/app/hooks/useRegisterModal";
 import useLoginModal from "@/app/hooks/useLoginModal";
 import Input from "../inputs/Input";
 import Button from "../Button";
@@ -20,7 +19,6 @@ const LoginModal = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const router = useRouter();
-  // const { onClose, isOpen } = useRegisterModal();
   const loginModal = useLoginModal();
 
   const {
