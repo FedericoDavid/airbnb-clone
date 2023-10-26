@@ -1,24 +1,26 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import axios from "axios";
-import { AiFillGithub } from "react-icons/ai";
-import { FcGoogle } from "react-icons/fc";
+import { signIn } from "next-auth/react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
+import { AiFillGithub } from "react-icons/ai";
+import { FcGoogle } from "react-icons/fc";
 
 import Modal from "./Modal";
 import Heading from "../Heading";
-
-import userRegisterModal from "@/app/hooks/useRegisterModal";
-import { signIn } from "next-auth/react";
 import Input from "../inputs/Input";
 import Button from "../Button";
+
+import useLoginModal from "@/app/hooks/useLoginModal";
+import useRegisterModal from "@/app/hooks/useRegisterModal";
 
 const RegisterModal = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const { onClose, isOpen } = userRegisterModal();
+  const loginModal = useLoginModal();
+  const registerModal = useRegisterModal();
 
   const {
     register,
@@ -38,7 +40,7 @@ const RegisterModal = () => {
     axios
       .post("api/register", data)
       .then(() => {
-        onClose();
+        registerModal.onClose();
       })
       .catch((error) => {
         toast.error("Something went wrong!");
@@ -49,6 +51,11 @@ const RegisterModal = () => {
         setIsLoading(false);
       });
   };
+
+  const toggleModal = useCallback(() => {
+    loginModal.onOpen();
+    registerModal.onClose();
+  }, [loginModal, registerModal]);
 
   const bodyContent = (
     <div className="flex flex-col gap-4">
@@ -100,7 +107,7 @@ const RegisterModal = () => {
         <div className="justify-center flex flex-row items-center gap-2">
           <div>Already have an account?</div>
           <div
-            onClick={onClose}
+            onClick={toggleModal}
             className="text-neutral-800 cursor-pointer hover:underline"
           >
             Log in
@@ -113,10 +120,10 @@ const RegisterModal = () => {
   return (
     <Modal
       disabled={isLoading}
-      isOpen={isOpen}
+      isOpen={registerModal.isOpen}
       title="Register"
       actionLabel="Continue"
-      onClose={onClose}
+      onClose={registerModal.onClose}
       onSubmit={handleSubmit(onSubmit)}
       body={bodyContent}
       footer={footerContent}

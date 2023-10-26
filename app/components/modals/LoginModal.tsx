@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { signIn } from "next-auth/react";
 import { AiFillGithub } from "react-icons/ai";
 import { FcGoogle } from "react-icons/fc";
@@ -11,6 +11,7 @@ import Modal from "./Modal";
 import Heading from "../Heading";
 
 import useLoginModal from "@/app/hooks/useLoginModal";
+import useRegisterModal from "@/app/hooks/useRegisterModal";
 import Input from "../inputs/Input";
 import Button from "../Button";
 import { useRouter } from "next/navigation";
@@ -20,6 +21,7 @@ const LoginModal = () => {
 
   const router = useRouter();
   const loginModal = useLoginModal();
+  const registerModal = useRegisterModal();
 
   const {
     register,
@@ -49,6 +51,11 @@ const LoginModal = () => {
       }
     });
   };
+
+  const toggleModal = useCallback(() => {
+    loginModal.onClose();
+    registerModal.onOpen();
+  }, [loginModal, registerModal]);
 
   const bodyContent = (
     <div className="flex flex-col gap-4">
@@ -90,12 +97,12 @@ const LoginModal = () => {
       />
       <div className="text-neutral-500 text-center mt-4 font-light">
         <div className="justify-center flex flex-row items-center gap-2">
-          <div>Already have an account?</div>
+          <div>First time using Airbnb?</div>
           <div
-            onClick={loginModal.onClose}
+            onClick={toggleModal}
             className="text-neutral-800 cursor-pointer hover:underline"
           >
-            Log in
+            Create an account
           </div>
         </div>
       </div>
