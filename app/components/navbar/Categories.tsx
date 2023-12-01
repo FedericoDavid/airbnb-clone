@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { IconType } from "react-icons";
 import { TbBeach, TbMountain, TbPool } from "react-icons/tb";
 import {
   GiBarn,
@@ -21,7 +22,13 @@ import Container from "../Container";
 import CategoryBox from "../CategoryBox";
 import { usePathname, useSearchParams } from "next/navigation";
 
-export const categories = [
+export type Category = {
+  icon: IconType;
+  label: string;
+  description: string;
+};
+
+export const categories: Category[] = [
   {
     label: "Beach",
     icon: TbBeach,
