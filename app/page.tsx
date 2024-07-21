@@ -22,7 +22,6 @@ export default async function Home() {
       <Container>
         <div
           className="           
-            pt-24
             grid 
             grid-cols-1 
             sm:grid-cols-2 
@@ -33,15 +32,13 @@ export default async function Home() {
             gap-8
           "
         >
-          {listings.map((listing) => {
-            return (
-              <ListingCard
-                key={listing.id}
-                currentUser={currentUser}
-                data={listing}
-              />
-            );
-          })}
+          {listings.map((listing) => (
+            <ListingCard
+              key={listing.id}
+              currentUser={currentUser}
+              data={listing}
+            />
+          ))}
         </div>
       </Container>
     </ClientOnly>

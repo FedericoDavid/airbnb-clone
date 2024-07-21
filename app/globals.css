@@ -2,10 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
-html,
-body,
 :root {
+  --primary: #3D2783;
+  --secondary: #F39200;
+  --skyblue: #159FDB;
+  --green: #00933A;
+  --white: 60 19% 87%;
+  --black: #111;
+}
+
+html,
+body {
   height: 100%;
+  background-color: var(--white);
+  color: var(--white);
+  scroll-behavior: smooth;
 }
 
 .leaflet-bottom,
