@@ -11,7 +11,7 @@ export const highlighted = [
     city: "Westerly, RI",
     location: "United States",
     price: 14950000,
-    src: "/images/section/hero/westerly-united-states.webp",
+    src: "/images/section/hero/westerly-ri-united-states.webp",
   },
   {
     id: 2,

@@ -2,7 +2,7 @@
 
 import Container from "../Container";
 import Logo from "./Logo";
-import Navigation from "./Navigation";
+import Navigation from "../Navigation";
 import UserMenu from "./UserMenu";
 
 import { SafeUser } from "@/app/types";
