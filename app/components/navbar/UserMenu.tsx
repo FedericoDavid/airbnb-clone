@@ -14,9 +14,10 @@ import { useRouter } from "next/navigation";
 
 interface UserMenuProps {
   currentUser?: SafeUser | null;
+  isScrolled?: boolean;
 }
 
-const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
+const UserMenu: React.FC<UserMenuProps> = ({ currentUser, isScrolled }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const router = useRouter();
@@ -37,7 +38,9 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
       <div className="flex flex-row items-center gap-3">
         <div
           onClick={onRent}
-          className="hidden md:block text-sm font-semibold py-3 px-4 rounded-full hover:bg-neutral-100 transition cursor-pointer"
+          className={`hidden md:block text-sm font-semibold py-3 px-4 rounded-full transition cursor-pointer ${
+            isScrolled ? "hover:bg-primary" : "hover:bg-primary"
+          }`}
         >
           Add New Home
         </div>
@@ -52,7 +55,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentUser }) => {
         </div>
       </div>
       {isOpen && (
-        <div className="absolute rounded-xl shadow-md w-[40vw] md:w-3/4 bg-white overflow-hidden right-0 top-12 text-sm">
+        <div className="absolute rounded-xl shadow-md w-[40vw] md:w-3/4 overflow-hidden right-0 top-12 text-sm bg-tertiary">
           <div className="flex flex-col cursor-pointer">
             {currentUser ? (
               <>

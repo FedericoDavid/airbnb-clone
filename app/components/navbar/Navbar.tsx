@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import Container from "../Container";
 import Logo from "./Logo";
 import Navigation from "../Navigation";
@@ -12,16 +14,32 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ currentUser }) => {
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 80);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <div className="fixed w-full bg-white z-10 shadow-sm">
-      <div className="py-4 border-b-[1px]">
+    <div
+      className="fixed w-full z-10 shadow-sm transition-colors duration-300"
+      style={{
+        backgroundColor: isScrolled ? "#012169" : "rgba(0, 0, 0, 0.3)",
+      }}
+    >
+      <div className="py-4">
         <Container>
           <div className="flex flex-row items-center justify-between gap-3 md:gap-0">
-            <Logo />
+            <Logo isScrolled={isScrolled} />
             <div>
               <Navigation />
             </div>
-            <UserMenu currentUser={currentUser} />
+            <UserMenu currentUser={currentUser} isScrolled={isScrolled} />
           </div>
         </Container>
       </div>

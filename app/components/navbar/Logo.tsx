@@ -1,10 +1,12 @@
-"use client";
-
 import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-const Logo = () => {
+interface LogoProps {
+  isScrolled: boolean;
+}
+
+const Logo: React.FC<LogoProps> = ({ isScrolled }) => {
   const router = useRouter();
 
   return (
@@ -12,12 +14,20 @@ const Logo = () => {
       <Image
         onClick={() => router.push("/")}
         alt="main-logo"
-        className="hidden md:block cursor-pointer"
+        className="cursor-pointer"
         height={46}
         width={46}
         src="/images/main-logo.webp"
+        style={{
+          boxShadow: isScrolled ? "0 0 0 1px #B8860B" : "",
+          borderRadius: isScrolled ? "5%" : "",
+        }}
       />
-      <div className="flex flex-col text-left pl-1 text-primary">
+      <div
+        className={`hidden md:flex flex-col text-left ${
+          isScrolled ? "pl-1.5 text-gold" : "pl-1 text-primary"
+        }`}
+      >
         <span
           className="text-sm md:text-md uppercase font-bold font-sans mb-0.5"
           style={{ lineHeight: 1 }}

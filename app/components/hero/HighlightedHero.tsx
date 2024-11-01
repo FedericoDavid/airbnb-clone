@@ -34,12 +34,15 @@ const HighlightedHero: React.FC<HighlightedHeroProps> = ({ highlighted }) => {
               alt={`${item.city}, ${item.location}`}
               layout="fill"
               objectFit="cover"
-              className="brightness-50"
+              className="brightness-95"
             />
-            <div className="absolute top-10 left-10 text-white">
-              <h2 className="text-3xl font-bold">{item.city}</h2>
-              <p className="text-xl">{item.location}</p>
-              <p className="text-lg">${item.price.toLocaleString()}</p>
+            <div className="absolute top-36 left-10 text-[#fff] text-start">
+              <h2 className="text-[56px] font-bold">{item.city}</h2>
+              <p className="text-xl">
+                <span>{item.location}</span>
+                <span className="px-2">-</span>
+                <span>${item.price.toLocaleString()}</span>
+              </p>
               <Link href={`/listing/${item.id}`}>
                 <span className="mt-4 inline-block bg-blue-500 text-white py-2 px-4 rounded">
                   View More
@@ -49,7 +52,7 @@ const HighlightedHero: React.FC<HighlightedHeroProps> = ({ highlighted }) => {
           </div>
         ))}
       </Carousel>
-      <div className="absolute bottom-0 left-0 right-0 bg-white bg-opacity-80 py-2">
+      <div className="absolute bottom-0 left-0 right-0 bg-white bg-opacity-80">
         <Navigation />
       </div>
     </div>

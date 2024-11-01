@@ -1,4 +1,4 @@
-import defaultTheme from 'tailwindcss/defaultTheme';
+import defaultTheme from "tailwindcss/defaultTheme";
 
 /** @type {import('tailwindcss').Config} */
 
@@ -11,23 +11,24 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-      sans: ['Poppins', ...defaultTheme.fontFamily.sans],
+        sans: ["Poppins", ...defaultTheme.fontFamily.sans],
+      },
+      colors: {
+        transparent: "transparent",
+        primary: "var(--primary)",
+        secondary: "var(--secondary)",
+        tertiary: "var(--tertiary)",
+        white: "var(--white)",
+        black: "var(--black)",
+        green: "var(--green)",
+        skyblue: "var(--skyblue)",
+        gold: "var(--gold)",
+      },
+      screens: {
+        ...defaultTheme.screens,
+        xl: "1240px",
+      },
     },
-    colors: {
-      transparent: 'transparent',
-      primary: 'var(--primary)',
-      secondary: 'var(--secondary)',
-      white: 'var(--white)',
-      black: 'var(--black)',
-      green: 'var(--green)',
-      skyblue: 'var(--skyblue)',
-    },
-    screens: {
-      ...defaultTheme.screens,
-      xl: '1240px',
-    },
-    }
-
   },
   plugins: [],
 };

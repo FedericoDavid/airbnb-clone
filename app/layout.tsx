@@ -10,8 +10,8 @@ import RentModal from "./components/modals/RentModal";
 import "./globals.css";
 
 export const metadata = {
-  title: "Airbnb",
-  description: "Airbnb Clone",
+  title: "Kelm Realty - Real Estate & Homes for Sale",
+  description: "Real Estate and Homes for Sale",
 };
 
 const font = Nunito({
@@ -33,7 +33,7 @@ export default async function RootLayout({
         <RegisterModal />
         <LoginModal />
         <RentModal />
-        <div className="pb-20 pt-28">{children}</div>
+        <div>{children}</div>
       </body>
     </html>
   );
