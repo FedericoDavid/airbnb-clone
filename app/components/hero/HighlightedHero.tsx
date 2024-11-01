@@ -1,11 +1,10 @@
 "use client";
 
-import React from "react";
-import { Carousel } from "react-responsive-carousel";
-import "react-responsive-carousel/lib/styles/carousel.min.css";
-import Image from "next/image";
 import Link from "next/link";
-import Navigation from "../Navigation";
+import Image from "next/image";
+import { useState } from "react";
+import { BsArrowRight } from "react-icons/bs";
+import { Carousel } from "react-responsive-carousel";
 
 interface HighlightedHeroProps {
   highlighted: {
@@ -18,6 +17,8 @@ interface HighlightedHeroProps {
 }
 
 const HighlightedHero: React.FC<HighlightedHeroProps> = ({ highlighted }) => {
+  const [selectedSlide, setSelectedSlide] = useState(0);
+
   return (
     <div className="relative">
       <Carousel
@@ -26,6 +27,7 @@ const HighlightedHero: React.FC<HighlightedHeroProps> = ({ highlighted }) => {
         infiniteLoop
         showStatus={false}
         showIndicators={false}
+        onChange={(index) => setSelectedSlide(index)}
       >
         {highlighted.map((item) => (
           <div key={item.id} className="relative h-[800px]">
@@ -36,24 +38,24 @@ const HighlightedHero: React.FC<HighlightedHeroProps> = ({ highlighted }) => {
               objectFit="cover"
               className="brightness-95"
             />
-            <div className="absolute top-36 left-10 text-[#fff] text-start">
-              <h2 className="text-[56px] font-bold">{item.city}</h2>
-              <p className="text-xl">
-                <span>{item.location}</span>
-                <span className="px-2">-</span>
-                <span>${item.price.toLocaleString()}</span>
-              </p>
-              <Link href={`/listing/${item.id}`}>
-                <span className="mt-4 inline-block bg-blue-500 text-white py-2 px-4 rounded">
-                  View More
-                </span>
-              </Link>
-            </div>
           </div>
         ))}
       </Carousel>
-      <div className="absolute bottom-0 left-0 right-0 bg-white bg-opacity-80">
-        <Navigation />
+      <div className="fixed top-28 left-10 z-10 text-white text-start">
+        <h2 className="text-[56px] font-bold">
+          {highlighted[selectedSlide].city}
+        </h2>
+        <p className="text-xl">
+          <span>{highlighted[selectedSlide].location}</span>
+          <span className="px-2">-</span>
+          <span>${highlighted[selectedSlide].price.toLocaleString()}</span>
+        </p>
+        <Link href={`/listing/${highlighted[selectedSlide].id}`}>
+          <span className="mt-4 inline-flex items-center text-white font-semibold text-sm tracking-widest cursor-pointer group border-b-[1px] border-transparent hover:border-gold">
+            SEE DETAILS
+            <BsArrowRight className="ml-2 transition-transform duration-300 ease-in-out transform group-hover:translate-x-1 group-hover:text-gold" />
+          </span>
+        </Link>
       </div>
     </div>
   );

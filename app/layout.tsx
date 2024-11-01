@@ -7,6 +7,7 @@ import ToasterProvider from "./providers/ToasterProvider";
 import getCurrentUser from "./actions/getCurrentUser";
 import RentModal from "./components/modals/RentModal";
 
+import "react-responsive-carousel/lib/styles/carousel.min.css";
 import "./globals.css";
 
 export const metadata = {
