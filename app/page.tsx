@@ -26,7 +26,7 @@ export default async function Home() {
         <div className="py-8">
           <div className="flex items-center justify-start mb-4">
             <h2 className="text-2xl font-bold text-black">
-              Our Current Listings
+              Highlighted Listings
             </h2>
           </div>
           <div
