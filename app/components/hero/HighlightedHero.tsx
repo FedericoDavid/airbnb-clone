@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
-import Image from "next/image";
-import { useState } from "react";
-import { BsArrowRight } from "react-icons/bs";
+import { useState, useEffect, useRef } from "react";
 import { Carousel } from "react-responsive-carousel";
+import { BsArrowRight } from "react-icons/bs";
+import Image from "next/image";
+import Link from "next/link";
 
 interface HighlightedHeroProps {
   highlighted: {
@@ -18,9 +18,38 @@ interface HighlightedHeroProps {
 
 const HighlightedHero: React.FC<HighlightedHeroProps> = ({ highlighted }) => {
   const [selectedSlide, setSelectedSlide] = useState(0);
+  const [scrollY, setScrollY] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  const calculateTextPosition = () => {
+    if (!containerRef.current) return "36px";
+
+    const containerHeight = 650;
+    const initialTextPosition = 36 * 4;
+    const bottomMargin = 120;
+    const textHeight = 150;
+
+    const maxAllowedScroll =
+      containerHeight - textHeight - bottomMargin - initialTextPosition;
+    const effectiveScroll = Math.min(scrollY, maxAllowedScroll);
+    const newPosition = initialTextPosition + effectiveScroll;
+
+    return `${newPosition}px`;
+  };
 
   return (
-    <div className="relative">
+    <div className="relative h-[650px]" ref={containerRef}>
       <Carousel
         showThumbs={false}
         autoPlay
@@ -30,7 +59,7 @@ const HighlightedHero: React.FC<HighlightedHeroProps> = ({ highlighted }) => {
         onChange={(index) => setSelectedSlide(index)}
       >
         {highlighted.map((item) => (
-          <div key={item.id} className="relative h-[800px]">
+          <div key={item.id} className="relative h-[650px]">
             <Image
               src={item.src}
               alt={`${item.city}, ${item.location}`}
@@ -41,17 +70,23 @@ const HighlightedHero: React.FC<HighlightedHeroProps> = ({ highlighted }) => {
           </div>
         ))}
       </Carousel>
-      <div className="fixed top-28 left-10 z-10 text-white text-start">
-        <h2 className="text-[56px] font-bold">
+      <div
+        className="absolute left-16 z-20 text-white text-start pointer-events-none"
+        style={{ top: calculateTextPosition() }}
+      >
+        <h2 className="text-[56px] font-bold drop-shadow-lg">
           {highlighted[selectedSlide].city}
         </h2>
-        <p className="text-xl">
+
+        <div className="w-36 h-1 bg-gold my-6"></div>
+
+        <p className="text-xl drop-shadow-lg">
           <span>{highlighted[selectedSlide].location}</span>
           <span className="px-2">-</span>
           <span>${highlighted[selectedSlide].price.toLocaleString()}</span>
         </p>
         <Link href={`/listing/${highlighted[selectedSlide].id}`}>
-          <span className="mt-4 inline-flex items-center text-white font-semibold text-sm tracking-widest cursor-pointer group border-b-[1px] border-transparent hover:border-gold">
+          <span className="mt-6 inline-flex items-center text-white font-semibold text-sm tracking-widest cursor-pointer group border-b-[1px] border-transparent hover:border-gold drop-shadow-lg pointer-events-auto">
             SEE DETAILS
             <BsArrowRight className="ml-2 transition-transform duration-300 ease-in-out transform group-hover:translate-x-1 group-hover:text-gold" />
           </span>

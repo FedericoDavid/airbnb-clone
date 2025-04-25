@@ -22,6 +22,21 @@ export async function POST(request: Request) {
     price,
   } = body;
 
+  let locationValue = "";
+
+  if (typeof location === "object") {
+    if (location.exactLocation) {
+      locationValue = JSON.stringify({
+        country: location.value,
+        exact: location.exactLocation,
+      });
+    } else {
+      locationValue = location.value;
+    }
+  } else {
+    locationValue = location;
+  }
+
   const listing = await prisma.listing.create({
     data: {
       title,
@@ -31,7 +46,7 @@ export async function POST(request: Request) {
       roomCount,
       bathroomCount,
       guestCount,
-      locationValue: location.value,
+      locationValue,
       price: parseInt(price, 10),
       userId: currentUser.id,
     },

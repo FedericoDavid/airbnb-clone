@@ -2,14 +2,14 @@
 
 import dynamic from "next/dynamic";
 
-import Avatar from "../Avatar";
 import ListingCategory from "./ListingCategory";
+import Avatar from "../Avatar";
 
 import useCountries from "@/app/hooks/useCountries";
-import { SafeUser } from "@/app/types";
 import { Category } from "../navbar/Categories";
+import { SafeUser } from "@/app/types";
 
-const Map = dynamic(() => import("../Map"), {
+const ViewOnlyMap = dynamic(() => import("../ViewOnlyMap"), {
   ssr: false,
 });
 
@@ -34,7 +34,9 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
 }) => {
   const { getByValue } = useCountries();
 
-  const coordinates = getByValue(locationValue)?.latlng;
+  const location = getByValue(locationValue);
+  const coordinates = location?.latlng;
+  const hasExactLocation = "exactAddress" in (location || {});
 
   return (
     <div className="col-span-4 flex flex-col gap-8">
@@ -43,7 +45,7 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
           <span>Hosted by {user?.name}</span>
           <Avatar src={user?.image} />
         </div>
-        <div className="flex flex-row items-center gap-4 font-light text-neutral-500">
+        <div className="flex flex-row items-center gap-4 font-light text-neutral-600">
           <div>{guestCount} guests</div>
           <div>{roomCount} rooms</div>
           <div>{bathroomCount} bathrooms</div>
@@ -58,9 +60,19 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
         />
       )}
       <hr />
-      <div className="text-lg font-light text-neutral-500">{description}</div>
+      <div className="text-lg font-light text-neutral-600">{description}</div>
       <hr />
-      <Map center={coordinates} />
+      <div className="text-lg font-semibold text-black">Location</div>
+      <div className="font-light text-neutral-600">
+        {location?.region}, {location?.label}
+        {hasExactLocation && (
+          <div className="mt-2 text-sm">
+            <span className="text-neutral-600">Approximate location: </span>
+            {(location as any).exactAddress}
+          </div>
+        )}
+      </div>
+      <ViewOnlyMap center={coordinates} precisionRadius={100} />
     </div>
   );
 };

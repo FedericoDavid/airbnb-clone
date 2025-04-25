@@ -11,8 +11,28 @@ const formattedCountries = countries.map((country) => ({
 const useCountries = () => {
   const getAll = () => formattedCountries;
 
-  const getByValue = (value: string) =>
-    formattedCountries.find((item) => item.value === value);
+  const getByValue = (value: string) => {
+    try {
+      const parsedValue = JSON.parse(value);
+      if (parsedValue.country && parsedValue.exact) {
+        const countryInfo = formattedCountries.find(
+          (item) => item.value === parsedValue.country
+        );
+
+        return {
+          ...countryInfo,
+          exactLocation: parsedValue.exact,
+          latlng: [parsedValue.exact.lat, parsedValue.exact.lng],
+          exactAddress: parsedValue.exact.address,
+        };
+      }
+    } catch (error) {
+      console.error("Error parsing value:", error);
+      return null;
+    }
+
+    return formattedCountries.find((item) => item.value === value);
+  };
 
   return { getAll, getByValue };
 };

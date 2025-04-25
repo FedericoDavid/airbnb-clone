@@ -1,22 +1,22 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
-import axios from "axios";
+import { useMemo, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
+import axios from "axios";
 
-import Modal from "./Modal";
 import CategoryInput from "../inputs/CategoryInput";
 import CountrySelect from "../inputs/CountrySelect";
-import Heading from "../Heading";
-import dynamic from "next/dynamic";
-import Counter from "../inputs/Counter";
 import ImageUpload from "../inputs/ImageUpload";
+import Counter from "../inputs/Counter";
 import Input from "../inputs/Input";
+import dynamic from "next/dynamic";
+import Heading from "../Heading";
+import Modal from "./Modal";
 
-import { categories } from "../navbar/Categories";
 import useRentModal from "@/app/hooks/useRentModal";
+import { categories } from "../navbar/Categories";
 
 enum STEPS {
   CATEGORY = 0,
@@ -34,6 +34,35 @@ const RentModal = () => {
   const rentModal = useRentModal();
   const router = useRouter();
 
+  const formStorageKey = "rentModalFormData";
+
+  const getSavedFormData = () => {
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem(formStorageKey);
+      return saved ? JSON.parse(saved) : null;
+    }
+    return null;
+  };
+
+  const getDefaultValues = () => {
+    const savedData = getSavedFormData();
+
+    return (
+      savedData || {
+        category: "",
+        location: null,
+        exactLocation: null,
+        guestCount: 1,
+        roomCount: 1,
+        bathroomCount: 1,
+        imageSrc: "",
+        price: 1,
+        title: "",
+        description: "",
+      }
+    );
+  };
+
   const {
     register,
     handleSubmit,
@@ -42,21 +71,25 @@ const RentModal = () => {
     reset,
     formState: { errors },
   } = useForm<FieldValues>({
-    defaultValues: {
-      category: "",
-      location: null,
-      guestCount: 1,
-      roomCount: 1,
-      bathroomCount: 1,
-      imageSrc: "",
-      price: 1,
-      title: "",
-      description: "",
-    },
+    defaultValues: getDefaultValues(),
   });
+
+  const formValues = watch();
+  useEffect(() => {
+    if (typeof window !== "undefined" && rentModal.isOpen) {
+      sessionStorage.setItem(formStorageKey, JSON.stringify(formValues));
+    }
+  }, [formValues, rentModal.isOpen]);
+
+  const clearSavedForm = () => {
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem(formStorageKey);
+    }
+  };
 
   const category = watch("category");
   const location = watch("location");
+  const exactLocation = watch("exactLocation");
   const guestCount = watch("guestCount");
   const roomCount = watch("roomCount");
   const bathroomCount = watch("bathroomCount");
@@ -82,6 +115,26 @@ const RentModal = () => {
   const onBack = () => setStep((value) => value - 1);
   const onNext = () => setStep((value) => value + 1);
 
+  const handleCountryChange = (countryValue: any) => {
+    const currentExact = watch("exactLocation");
+
+    setCustomValue("location", countryValue);
+
+    if (currentExact) {
+      setTimeout(() => {
+        setCustomValue("exactLocation", currentExact);
+      }, 0);
+    }
+  };
+
+  const mapCoordinates = useMemo(() => {
+    if (exactLocation) {
+      return [exactLocation.lat, exactLocation.lng];
+    }
+
+    return location?.latlng;
+  }, [exactLocation, location]);
+
   const actionLabel = useMemo(() => {
     if (step === STEPS.PRICE) return "Create";
 
@@ -99,13 +152,28 @@ const RentModal = () => {
 
     setIsLoading(true);
 
+    const locationData = {
+      ...data.location,
+      exactLocation: data.exactLocation
+        ? {
+            lat: data.exactLocation.lat,
+            lng: data.exactLocation.lng,
+            address: data.exactLocation.address,
+          }
+        : null,
+    };
+
     axios
-      .post("/api/listings", data)
+      .post("/api/listings", {
+        ...data,
+        location: locationData,
+      })
       .then(() => {
         toast.success("Listing created!");
         router.refresh();
         reset();
         setStep(STEPS.CATEGORY);
+        clearSavedForm();
         rentModal.onClose();
       })
       .catch(() => {
@@ -114,6 +182,14 @@ const RentModal = () => {
       .finally(() => {
         setIsLoading(false);
       });
+  };
+
+  const handleLocationSelect = (selectedLocation: {
+    lat: number;
+    lng: number;
+    address: string;
+  }) => {
+    setCustomValue("exactLocation", selectedLocation);
   };
 
   let bodyContent = (
@@ -144,11 +220,25 @@ const RentModal = () => {
           title="Where is your place located?"
           subtitle="Help guests find you!"
         />
-        <CountrySelect
-          value={location}
-          onChange={(value) => setCustomValue("location", value)}
+        <CountrySelect value={location} onChange={handleCountryChange} />
+        <div className="text-sm text-gray-500">
+          <p>Select a more precise location on the map:</p>
+          <p className="text-xs mt-1">
+            The exact location will be shown within a 100-meter radius to
+            protect your privacy.
+          </p>
+        </div>
+        <Map
+          center={mapCoordinates}
+          onLocationSelect={handleLocationSelect}
+          precisionRadius={100}
         />
-        <Map center={location?.latlng} />
+        {exactLocation && (
+          <div className="text-sm text-gray-600">
+            <p>Selected location:</p>
+            <p className="font-medium">{exactLocation.address}</p>
+          </div>
+        )}
       </div>
     );
   }
@@ -248,10 +338,20 @@ const RentModal = () => {
     );
   }
 
+  const handleClose = () => {
+    if (
+      confirm(
+        "Are you sure you want to close? Your data will be saved for later."
+      )
+    ) {
+      rentModal.onClose();
+    }
+  };
+
   return (
     <Modal
       isOpen={rentModal.isOpen}
-      onClose={rentModal.onClose}
+      onClose={handleClose}
       onSubmit={handleSubmit(onSubmit)}
       actionLabel={actionLabel}
       secondaryActionLabel={secondaryActionLabel}

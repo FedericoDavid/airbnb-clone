@@ -3,10 +3,9 @@
 import React, { useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { format } from "date-fns";
 
-import useCountries from "@/app/hooks/useCountries";
 import { SafeListing, SafeReservation, SafeUser } from "@/app/types";
+import useCountries from "@/app/hooks/useCountries";
 
 import HeartButton from "../HeartButton";
 import Button from "../Button";
@@ -52,14 +51,11 @@ const ListingCard: React.FC<ListingCardProps> = ({
     return data.price;
   }, [reservation, data.price]);
 
-  const reservationDate = useMemo(() => {
-    if (!reservation) return null;
+  const locationLabel = useMemo(() => {
+    if (!location) return "";
 
-    const start = new Date(reservation.startDate);
-    const end = new Date(reservation.endDate);
-
-    return `${format(start, "PP")} - ${format(end, "PP")}`;
-  }, [reservation]);
+    return `${location.region}, ${location.label}`;
+  }, [location]);
 
   return (
     <div
@@ -77,16 +73,22 @@ const ListingCard: React.FC<ListingCardProps> = ({
           <div className="absolute top-3 right-3">
             <HeartButton listingId={data.id} currentUser={currentUser} />
           </div>
+          <div className="absolute top-3 left-3 bg-primary text-white px-3 py-1 rounded-full font-bold shadow-md">
+            $ {price}
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+            <div className="font-semibold text-white text-lg truncate">
+              {data.title}
+            </div>
+          </div>
         </div>
-        <div className="font-semibold text-lg">
-          {location?.region}, {location?.label}
-        </div>
-        <div className="font-light text-neutral-500">
-          {reservationDate || data.category}
-        </div>
-        <div className="flex flex-row items-center gap-1">
-          <div className="font-semibold">$ {price}</div>
-          {!reservation && <div className="font-light">night</div>}
+        <div className="flex flex-wrap gap-2 mt-2">
+          <div className="bg-blue-100 text-tertiary px-2 py-1 rounded-md text-sm font-medium">
+            {locationLabel}
+          </div>
+          <div className="bg-yellow-100 text-gold px-2 py-1 rounded-md text-sm font-medium">
+            {data.category}
+          </div>
         </div>
         {onAction && actionLabel && (
           <Button

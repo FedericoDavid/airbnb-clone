@@ -1,11 +1,12 @@
 import { Nunito } from "next/font/google";
 
-import Navbar from "./components/navbar/Navbar";
 import RegisterModal from "./components/modals/RegisterModal";
-import LoginModal from "./components/modals/LoginModal";
 import ToasterProvider from "./providers/ToasterProvider";
+import LoginModal from "./components/modals/LoginModal";
 import getCurrentUser from "./actions/getCurrentUser";
 import RentModal from "./components/modals/RentModal";
+import PageWrapper from "./components/PageWrapper";
+import Navbar from "./components/navbar/Navbar";
 
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import "./globals.css";
@@ -34,7 +35,7 @@ export default async function RootLayout({
         <RegisterModal />
         <LoginModal />
         <RentModal />
-        <div>{children}</div>
+        <PageWrapper>{children}</PageWrapper>
       </body>
     </html>
   );
