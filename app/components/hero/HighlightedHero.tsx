@@ -26,6 +26,8 @@ const HighlightedHero: React.FC<HighlightedHeroProps> = ({ highlighted }) => {
       setScrollY(window.scrollY);
     };
 
+    setScrollY(0);
+
     window.addEventListener("scroll", handleScroll);
     return () => {
       window.removeEventListener("scroll", handleScroll);
@@ -33,17 +35,24 @@ const HighlightedHero: React.FC<HighlightedHeroProps> = ({ highlighted }) => {
   }, []);
 
   const calculateTextPosition = () => {
-    if (!containerRef.current) return "36px";
+    if (!containerRef.current) return "100px";
 
     const containerHeight = 650;
-    const initialTextPosition = 36 * 4;
+    const initialTextPosition = 100;
     const bottomMargin = 120;
     const textHeight = 150;
+
+    if (scrollY < 20) return `${initialTextPosition}px`;
 
     const maxAllowedScroll =
       containerHeight - textHeight - bottomMargin - initialTextPosition;
     const effectiveScroll = Math.min(scrollY, maxAllowedScroll);
-    const newPosition = initialTextPosition + effectiveScroll;
+
+    const minPosition = 100;
+    const newPosition = Math.max(
+      initialTextPosition + effectiveScroll,
+      minPosition
+    );
 
     return `${newPosition}px`;
   };
@@ -71,7 +80,7 @@ const HighlightedHero: React.FC<HighlightedHeroProps> = ({ highlighted }) => {
         ))}
       </Carousel>
       <div
-        className="absolute left-16 z-20 text-white text-start pointer-events-none"
+        className="absolute left-16 z-20 text-white text-start pointer-events-none transition-all duration-300"
         style={{ top: calculateTextPosition() }}
       >
         <h2 className="text-[56px] font-bold drop-shadow-lg">

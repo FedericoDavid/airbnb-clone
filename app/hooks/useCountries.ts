@@ -14,6 +14,33 @@ const useCountries = () => {
   const getByValue = (value: string) => {
     try {
       const parsedValue = JSON.parse(value);
+
+      if (parsedValue.lat && parsedValue.lng && parsedValue.address) {
+        const address = parsedValue.address;
+        let region = "Unknown";
+
+        const addressParts = address.split(",");
+        if (addressParts.length > 1) {
+          const potentialCountry = addressParts[addressParts.length - 1].trim();
+          const countryMatch = formattedCountries.find(
+            (c) => c.label.toLowerCase() === potentialCountry.toLowerCase()
+          );
+
+          if (countryMatch) {
+            region = countryMatch.region;
+          }
+        }
+
+        return {
+          value: "custom",
+          flag: "🌍",
+          label: address,
+          latlng: [parsedValue.lat, parsedValue.lng],
+          region: region,
+          exactAddress: parsedValue.address,
+        };
+      }
+
       if (parsedValue.country && parsedValue.exact) {
         const countryInfo = formattedCountries.find(
           (item) => item.value === parsedValue.country
@@ -27,11 +54,10 @@ const useCountries = () => {
         };
       }
     } catch (error) {
-      console.error("Error parsing value:", error);
-      return null;
+      return formattedCountries.find((item) => item.value === value);
     }
 
-    return formattedCountries.find((item) => item.value === value);
+    return null;
   };
 
   return { getAll, getByValue };

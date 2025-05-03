@@ -22,34 +22,30 @@ export async function POST(request: Request) {
     price,
   } = body;
 
-  let locationValue = "";
-
-  if (typeof location === "object") {
-    if (location.exactLocation) {
-      locationValue = JSON.stringify({
-        country: location.value,
-        exact: location.exactLocation,
-      });
-    } else {
-      locationValue = location.value;
-    }
-  } else {
-    locationValue = location;
+  // Verificar que se haya seleccionado una ubicación
+  if (!location) {
+    return NextResponse.json(
+      { error: "You must select a location" },
+      { status: 400 }
+    );
   }
 
+  // Construir el objeto de datos para Prisma, location ahora se guarda en locationValue como JSON string
+  const listingData = {
+    title,
+    description,
+    imageSrc,
+    category,
+    roomCount,
+    bathroomCount,
+    guestCount,
+    locationValue: JSON.stringify(location), // Convertir a JSON string
+    price: parseInt(price, 10),
+    userId: currentUser.id,
+  };
+
   const listing = await prisma.listing.create({
-    data: {
-      title,
-      description,
-      imageSrc,
-      category,
-      roomCount,
-      bathroomCount,
-      guestCount,
-      locationValue,
-      price: parseInt(price, 10),
-      userId: currentUser.id,
-    },
+    data: listingData,
   });
 
   return NextResponse.json(listing);

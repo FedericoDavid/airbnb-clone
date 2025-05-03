@@ -7,7 +7,6 @@ import { toast } from "react-hot-toast";
 import axios from "axios";
 
 import CategoryInput from "../inputs/CategoryInput";
-import CountrySelect from "../inputs/CountrySelect";
 import ImageUpload from "../inputs/ImageUpload";
 import Counter from "../inputs/Counter";
 import Input from "../inputs/Input";
@@ -28,8 +27,9 @@ enum STEPS {
 }
 
 const RentModal = () => {
-  const [step, setStep] = useState(STEPS.CATEGORY);
-  const [isLoading, setIsLoading] = useState(false);
+  const [locationError, setLocationError] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [step, setStep] = useState<number>(STEPS.CATEGORY);
 
   const rentModal = useRentModal();
   const router = useRouter();
@@ -50,7 +50,6 @@ const RentModal = () => {
     return (
       savedData || {
         category: "",
-        location: null,
         exactLocation: null,
         guestCount: 1,
         roomCount: 1,
@@ -87,8 +86,16 @@ const RentModal = () => {
     }
   };
 
+  useEffect(() => {
+    if (!rentModal.isOpen) {
+      clearSavedForm();
+      reset();
+      setStep(STEPS.CATEGORY);
+      setLocationError("");
+    }
+  }, [rentModal.isOpen, reset]);
+
   const category = watch("category");
-  const location = watch("location");
   const exactLocation = watch("exactLocation");
   const guestCount = watch("guestCount");
   const roomCount = watch("roomCount");
@@ -100,8 +107,7 @@ const RentModal = () => {
       dynamic(() => import("../Map"), {
         ssr: false,
       }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [location]
+    []
   );
 
   const setCustomValue = (id: string, value: any) => {
@@ -113,18 +119,17 @@ const RentModal = () => {
   };
 
   const onBack = () => setStep((value) => value - 1);
-  const onNext = () => setStep((value) => value + 1);
 
-  const handleCountryChange = (countryValue: any) => {
-    const currentExact = watch("exactLocation");
-
-    setCustomValue("location", countryValue);
-
-    if (currentExact) {
-      setTimeout(() => {
-        setCustomValue("exactLocation", currentExact);
-      }, 0);
+  const onNext = () => {
+    if (step === STEPS.LOCATION && !exactLocation) {
+      setLocationError(
+        "Please select a location on the map before continuing."
+      );
+      return;
     }
+
+    setLocationError("");
+    setStep((value) => value + 1);
   };
 
   const mapCoordinates = useMemo(() => {
@@ -132,8 +137,17 @@ const RentModal = () => {
       return [exactLocation.lat, exactLocation.lng];
     }
 
-    return location?.latlng;
-  }, [exactLocation, location]);
+    return [51.505, -0.09];
+  }, [exactLocation]);
+
+  const handleLocationSelect = (selectedLocation: {
+    lat: number;
+    lng: number;
+    address: string;
+  }) => {
+    setCustomValue("exactLocation", selectedLocation);
+    setLocationError("");
+  };
 
   const actionLabel = useMemo(() => {
     if (step === STEPS.PRICE) return "Create";
@@ -152,21 +166,16 @@ const RentModal = () => {
 
     setIsLoading(true);
 
-    const locationData = {
-      ...data.location,
-      exactLocation: data.exactLocation
-        ? {
-            lat: data.exactLocation.lat,
-            lng: data.exactLocation.lng,
-            address: data.exactLocation.address,
-          }
-        : null,
-    };
-
     axios
       .post("/api/listings", {
         ...data,
-        location: locationData,
+        location: data.exactLocation
+          ? {
+              lat: data.exactLocation.lat,
+              lng: data.exactLocation.lng,
+              address: data.exactLocation.address,
+            }
+          : null,
       })
       .then(() => {
         toast.success("Listing created!");
@@ -182,14 +191,6 @@ const RentModal = () => {
       .finally(() => {
         setIsLoading(false);
       });
-  };
-
-  const handleLocationSelect = (selectedLocation: {
-    lat: number;
-    lng: number;
-    address: string;
-  }) => {
-    setCustomValue("exactLocation", selectedLocation);
   };
 
   let bodyContent = (
@@ -220,23 +221,29 @@ const RentModal = () => {
           title="Where is your place located?"
           subtitle="Help guests find you!"
         />
-        <CountrySelect value={location} onChange={handleCountryChange} />
         <div className="text-sm text-gray-500">
-          <p>Select a more precise location on the map:</p>
+          <p>Select your location on the map:</p>
           <p className="text-xs mt-1">
             The exact location will be shown within a 100-meter radius to
             protect your privacy.
           </p>
         </div>
-        <Map
-          center={mapCoordinates}
-          onLocationSelect={handleLocationSelect}
-          precisionRadius={100}
-        />
+        <div className="z-0">
+          <Map
+            center={mapCoordinates}
+            onLocationSelect={handleLocationSelect}
+            precisionRadius={100}
+          />
+        </div>
         {exactLocation && (
           <div className="text-sm text-gray-600">
             <p>Selected location:</p>
             <p className="font-medium">{exactLocation.address}</p>
+          </div>
+        )}
+        {locationError && (
+          <div className="text-sm text-rose-500 font-medium">
+            {locationError}
           </div>
         )}
       </div>
@@ -339,13 +346,8 @@ const RentModal = () => {
   }
 
   const handleClose = () => {
-    if (
-      confirm(
-        "Are you sure you want to close? Your data will be saved for later."
-      )
-    ) {
-      rentModal.onClose();
-    }
+    clearSavedForm();
+    rentModal.onClose();
   };
 
   return (

@@ -30,10 +30,19 @@ const mapSearchStyles = `
   .leaflet-control-geosearch .results {
     background-color: white !important;
     color: black !important;
+    z-index: 1000 !important;
+    max-height: 200px !important;
+    overflow-y: auto !important;
   }
   .leaflet-control-geosearch .results > * {
     color: black !important;
     padding: 6px 12px !important;
+  }
+  .leaflet-top {
+    z-index: 999 !important;
+  }
+  .leaflet-container {
+    z-index: 0 !important;
   }
 `;
 
